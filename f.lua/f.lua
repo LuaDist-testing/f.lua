@@ -74,23 +74,7 @@ end
 local cdr
 cdr = function(tbl)
   assert(type(tbl) == "table", "cdr expects tbl to be a table, but received a " .. type(tbl))
-  local first = true
-  local ret = {}
-  for ix, v in pairs(tbl) do
-    if first then
-      first = false
-      if ix == nil then
-        return {}
-      end
-    else
-      if type(ix) == "number" then
-        ret[#ret + 1] = v
-      else
-        ret[ix] = v
-      end
-    end
-  end
-  return ret
+  return { unpack(tbl, 2) }
 end
 
 -- String Lambda!
@@ -148,14 +132,14 @@ end
 local apply
 apply = function(functor, args)
   assert(type(args) == "table", "apply expects args to be a table, but received " .. type(args))
-  assert(type(functor) == "function", "apply expects functor to be a function")
+  assert(type(functor) == "function" or type(getmetatable(functor).__call) == "function", "apply expects functor to be a function")
   return functor(unpack(args))
 end
 
 local map
 map = function(functor, args)
   assert(type(args) == "table", "map expects args to be a table, but received a " .. type(args))
-  assert(type(functor) == "function", "map expects functor to be a function")
+  assert(type(functor) == "function" or type(getmetatable(functor).__call) == "function", "map expects functor to be a function")
   ret = {}
   for k, v in pairs(args) do
     ret[#ret + 1] = functor(v)
@@ -223,6 +207,32 @@ with = function(filepath, permissions, functor)
   return unpack(ret)
 end
 
+-- Coroutines
+
+local co = {}
+setmetatable(co, {
+  __call = function(functor)
+    return coroutine.wrap(functor)
+  end
+})
+
+co.c = function(functor)
+  return coroutine.create(functor)
+end
+
+co.t = function(thread)
+  assert(type(thread) == "thread", "co.t expects a thread, but received a " .. type(thread))
+  if coroutine.status(thread) == "suspended" then
+    return coroutine.resume(thread)
+  elseif coroutine.status(thread) == "dead" then
+    return nil
+  end
+end
+
+co.r = function()
+  return coroutine.running()
+end
+
 -- Predicates
 
 local isstring
@@ -275,7 +285,7 @@ local add = function(a,b) return a + b end
 local sub = function(a, b) return a - b end
 local mul = function(a, b) return a * b end
 
--- We want div(a, b) and div.true(a, b) for integer division.
+-- We want div(a, b) and div.int(a, b) for integer division.
 local div = {}
 setmetatable(div,
     {
@@ -303,10 +313,12 @@ return {
   apply = apply,
   map = map,
   filter = filter,
+  reduce = filter,
   curry = curry,
   eq = eq,
   recur = recur,
   with = with,
+  co = co,
   isstring = isstring,
   isnumber = isnumber,
   isfunction = isfunction,
