@@ -1,16 +1,16 @@
 -- This file was automatically generated for the LuaDist project.
 
 package = "f.lua"
-version = "1.2-0"
+version = "1.2-1"
 -- LuaDist source
 source = {
-  tag = "1.2-0",
+  tag = "1.2-1",
   url = "git://github.com/LuaDist-testing/f.lua.git"
 }
 -- Original source
 -- source = {
 --   url = "git://github.com/shakna-israel/f.lua",
---   tag = "1.2.0"
+--   tag = "1.2.1"
 -- }
 description = {
   summary = "A functional Lua extension library",
@@ -26,8 +26,10 @@ dependencies = {
   "lua >= 5.1"
 }
 build = {
-  type = "builtin",
-  modules = {
-    f = "f.lua"
+  type = "none",
+  install = {
+    lua = {
+      "f.lua"
+    }
   }
 }
