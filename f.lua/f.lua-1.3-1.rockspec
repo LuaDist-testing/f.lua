@@ -1,8 +1,8 @@
 package = "f.lua"
-version = "1.3-0"
+version = "1.3-1"
 source = {
   url = "git://github.com/shakna-israel/f.lua",
-  tag = "1.3.0"
+  tag = "1.3.1"
 }
 description = {
   summary = "A functional Lua extension library",
@@ -21,7 +21,7 @@ build = {
   type = "none",
   install = {
     lua = {
-      "f.lua"
+      "f.lua/f.lua"
     }
   }
 }
